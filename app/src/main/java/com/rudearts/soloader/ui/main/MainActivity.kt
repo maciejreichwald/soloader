@@ -37,34 +37,33 @@ class MainActivity : ToolbarActivity(), MainContract.View {
         loadItems()
     }
 
-    private fun setupRefresh() {
-        refreshLayout.setOnRefreshListener {
+    private fun setupRefresh() = refreshLayout.setOnRefreshListener {
             loadItems()
             refreshLayout.isRefreshing = false
-        }
     }
 
-    private fun setupSearchView() {
-        searchView.setOnQueryTextListener(object: OnQueryTextListener() {
-            override fun onQueryTextSubmit(query: String?): Boolean {
-                loadItems()
-                return super.onQueryTextSubmit(query)
-            }
-        })
-        searchView.setOnCloseListener {
+
+    private fun setupSearchView() = with(searchView) {
+        setOnQueryTextListener(createOnQueryTextListener())
+        setOnCloseListener {
             loadItems()
             false
         }
     }
 
-    private fun loadItems() {
-        presenter.loadQuestions(searchView.query.toString())
+    private fun createOnQueryTextListener() = object: OnQueryTextListener() {
+        override fun onQueryTextSubmit(query: String?): Boolean {
+            loadItems()
+            return super.onQueryTextSubmit(query)
+        }
     }
+
+    private fun loadItems() = presenter.loadQuestions(searchView.query.toString())
 
     private fun setupList() {
         adapter = QuestionAdapter(this, ArrayList(), {onQuestionClick(it)})
         listItems.adapter = adapter
-        listItems.layoutManager = LinearLayoutManager(this)
+        listItems.layoutManager = LinearLayoutManager(this@MainActivity)
     }
 
     override fun provideSubContentViewId() = R.layout.activity_main
@@ -87,9 +86,7 @@ class MainActivity : ToolbarActivity(), MainContract.View {
         showEmptyView(questions.isEmpty())
     }
 
-    override fun showMessage(message: String) {
-        showSnackMessage(message)
-    }
+    override fun showMessage(message: String) = showSnackMessage(message)
 
     private fun showEmptyView(isVisible:Boolean) = when(isVisible) {
         true -> emptyView.visibility = View.VISIBLE
@@ -97,18 +94,17 @@ class MainActivity : ToolbarActivity(), MainContract.View {
     }
 
     private fun onQuestionClick(question: Question) {
-        val intent = Intent(this, DetailsActivity::class.java)
-        intent.putExtra(DetailsActivity.TITLE, question.title)
-        intent.putExtra(DetailsActivity.LINK, question.link)
+        val intent = Intent(this, DetailsActivity::class.java).apply {
+            putExtra(DetailsActivity.TITLE, question.title)
+            putExtra(DetailsActivity.LINK, question.link)
+        }
         startActivity(intent)
     }
 
-    override fun onBackPressed() {
-        if (!searchView.isIconified) {
-            searchView.isIconified = true
-            return
+    override fun onBackPressed() = with(searchView) {
+        when(isIconified) {
+            true -> searchView.isIconified = true
+            false -> super.onBackPressed()
         }
-
-        super.onBackPressed()
     }
 }

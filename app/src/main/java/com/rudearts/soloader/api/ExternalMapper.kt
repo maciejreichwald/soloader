@@ -12,14 +12,16 @@ import com.rudearts.soloader.model.local.UserType
 class ExternalMapper(base:Context) : ContextWrapper(base) {
 
     fun question2local(question:QuestionExternal) = with(question) {
-        Question(tags ?: ArrayList(), is_answered, view_count, answer_count, score, last_activity_date, creation_date, question_id, link, title ?: getString(R.string.unknown), user2local(owner))
+        Question(tags ?: ArrayList(), is_answered, view_count, answer_count, score, last_activity_date, creation_date, question_id, link, unknownWhenEmpty(title) , user2local(owner))
     }
 
     fun user2local(user:UserExternal) = with(user) {
-        User(reputation, user_id, userType2local(user_type ?: ""), accept_rate, profile_image, display_name ?: getString(R.string.unknown), link)
+        User(reputation, user_id, userType2local(user_type), accept_rate, profile_image, unknownWhenEmpty(display_name), link)
     }
 
-    private fun userType2local(type:String) = when(type) {
+    private fun unknownWhenEmpty(text:String?) = text ?: getString(R.string.unknown)
+
+    private fun userType2local(type:String?) = when(type) {
         UserType.REGISTERED.type -> UserType.REGISTERED
         else -> UserType.GUEST
     }

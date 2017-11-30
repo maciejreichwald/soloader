@@ -30,20 +30,26 @@ class DetailsActivity : ToolbarActivity() {
     }
 
     private fun setupWebView() {
-        webView.settings.javaScriptEnabled = true
-        webView.webViewClient = object : WebViewClient() {
-            override fun onPageFinished(view: WebView?, url: String?) {
-                progressBar.visibility = View.GONE
-                super.onPageFinished(view, url)
-            }
+        with(webView) {
+            settings.javaScriptEnabled = true
+            webViewClient = createWebViewListener()
         }
         webView.loadUrl(intent.getStringExtra(LINK))
     }
 
+    private fun createWebViewListener() = object : WebViewClient() {
+        override fun onPageFinished(view: WebView?, url: String?) {
+            progressBar.visibility = View.GONE
+            super.onPageFinished(view, url)
+        }
+    }
+
     private fun setupTitle() {
         setTitle(intent.getStringExtra(TITLE))
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.setDisplayShowHomeEnabled(true)
+        supportActionBar?.let {
+            it.setDisplayHomeAsUpEnabled(true)
+            it.setDisplayShowHomeEnabled(true)
+        }
     }
 
     override fun onSupportNavigateUp(): Boolean {
@@ -53,12 +59,10 @@ class DetailsActivity : ToolbarActivity() {
 
     override fun provideSubContentViewId() = R.layout.activity_details
 
-    override fun onBackPressed() {
-        if (webView.canGoBack()) {
-            webView.goBack()
-            return
+    override fun onBackPressed() = with(webView) {
+        when (canGoBack()) {
+            true -> goBack()
+            false -> super.onBackPressed()
         }
-
-        super.onBackPressed()
     }
 }

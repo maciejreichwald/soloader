@@ -56,7 +56,9 @@ class MainPresenter(base:Context, view:MainContract.View) : ContextWrapper(base)
     }
 
     private fun handleMessagesError(message: String) {
-        view.showMessage(message)
-        view.updateItems(ArrayList())
+        with(view) {
+            showMessage(message)
+            updateItems(ArrayList())
+        }
     }
 }
