@@ -102,7 +102,7 @@ class MainActivity : ToolbarActivity(), MainContract.View {
     }
 
     override fun onBackPressed() = with(searchView) {
-        when(isIconified) {
+        when(!isIconified) {
             true -> searchView.isIconified = true
             false -> super.onBackPressed()
         }
